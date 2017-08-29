@@ -3,21 +3,35 @@ import Header from './Header';
 import Order from './Order';
 import Inventory from './Inventory';
 import Fish from './Fish';
-import sampleFishes from '../sample-fishes'
+import sampleFishes from '../sample-fishes';
+import base from '../base';
 
 
 class App extends React.Component {
-
   constructor() {
     super();
+
     this.addFish = this.addFish.bind(this); // bind method to App component
     this.loadSamples = this.loadSamples.bind(this);
     this.addToOrder = this.addToOrder.bind(this);
+
     // Initial State (aka getInitialState())
     this.state = {
       fishes: {},
       order: {}
     };
+  }
+
+  // A React LifeCycle method - invoked once, both on the client and server, immediately before the initial rendering occurs
+  componentWillMount() {
+    this.ref = base.syncState(`${this.props.params.storeId}/fishes`, {
+      context: this,
+      state: 'fishes'
+    });
+  }
+
+  componentWillUnmount() {
+    base.removeBinding(this.ref);
   }
 
   addFish(fish) {
