@@ -3,8 +3,11 @@ import { formatPrice } from '../helpers.js';
 
 class Fish extends React.Component {
   render() {
-    const details = this.props.details; // 'Data massaging'
-    // const { details } = this.props; or use 'destructuring'
+    // const details = this.props.details; // 'Data massaging'
+    // const index = this.props.index;
+    const { details, index } = this.props; // using 'destructuring'
+    const isAvailable = details.status === 'available';
+    const buttonText = isAvailable ? 'Add to Order' : 'Sold Out';
     return (
       <li className="menu-fish">
         <img src={details.image} alt={details.name} />
@@ -13,7 +16,7 @@ class Fish extends React.Component {
           <span className="price">{formatPrice(details.price)}</span>
         </h3>
         <p>{details.desc}</p>
-        <button>Add to Order</button>
+        <button onClick={() => this.props.addToOrder(index)} disabled={!isAvailable}>{buttonText}</button>
       </li>
     );
   }
