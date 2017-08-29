@@ -22,16 +22,32 @@ class App extends React.Component {
     };
   }
 
-  // A React LifeCycle method - invoked once, both on the client and server, immediately before the initial rendering occurs
+  // A React LifeCycle method - invoked once, both on the client and server, immediately before the INITIAL rendering occurs
   componentWillMount() {
     this.ref = base.syncState(`${this.props.params.storeId}/fishes`, {
       context: this,
-      state: 'fishes'
+      state: 'fishes' // the state we want to sync
     });
+
+    // check if there is any order in localStorage
+    const localStorageRef = localStorage.getItem(`order-${this.props.params.storeId}`);
+
+    if (localStorageRef) {
+      // update our App component's order state
+      this.setState({
+        order: JSON.parse(localStorageRef)
+      });
+    }
   }
 
   componentWillUnmount() {
+    // Stop syncing when we goto another store, so we don't rack up tons of listeners behind the scenes...
     base.removeBinding(this.ref);
+  }
+
+  // Invoked immediately before rendering when new props or state are being received (changed)
+  componentWillUpdate(nextProps, nextState) {
+    localStorage.setItem(`order-${this.props.params.storeId}`, JSON.stringify(nextState.order));
   }
 
   addFish(fish) {
@@ -72,7 +88,11 @@ class App extends React.Component {
             }
           </ul>
         </div>
-        <Order fishes={this.state.fishes} order={this.state.order}/>
+        <Order
+          fishes={this.state.fishes}
+          order={this.state.order}
+          params={this.props.params}
+        />
         <Inventory addFish={this.addFish} loadSamples={this.loadSamples}/>
       </div>
     );
