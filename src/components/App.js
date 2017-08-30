@@ -12,8 +12,11 @@ class App extends React.Component {
     super();
 
     this.addFish = this.addFish.bind(this); // bind method to App component
+    this.updateFish = this.updateFish.bind(this);
+    this.removeFish = this.removeFish.bind(this);
     this.loadSamples = this.loadSamples.bind(this);
     this.addToOrder = this.addToOrder.bind(this);
+    this.removeFromOrder = this.removeFromOrder.bind(this);
 
     // Initial State (aka getInitialState())
     this.state = {
@@ -60,6 +63,18 @@ class App extends React.Component {
     this.setState({ fishes });  // syntactic sugar for fishes: fishes
   }
 
+  updateFish(key, updatedFish) {
+    const fishes = {...this.state.fishes};
+    fishes[key] = updatedFish;  // this is an object ex fishes['mykey']
+    this.setState({ fishes });
+  }
+
+  removeFish(key) {
+    const fishes = {...this.state.fishes};
+    fishes[key] = null; // Cannot use 'delete' bc firebase acts weird
+    this.setState({ fishes });
+  }
+
   loadSamples() {
     this.setState({
       fishes: sampleFishes
@@ -72,6 +87,12 @@ class App extends React.Component {
     // update or add the new number of fish ordered
     order[key] = order[key] + 1 || 1; // || 1 bc can't add 1 if doesn't exist
     // update our state
+    this.setState({ order });
+  }
+
+  removeFromOrder(key) {
+    const order = {...this.state.order};
+    delete order[key];  // delete is actually a native JS method...
     this.setState({ order });
   }
 
@@ -92,8 +113,14 @@ class App extends React.Component {
           fishes={this.state.fishes}
           order={this.state.order}
           params={this.props.params}
+          removeFromOrder={this.removeFromOrder}
         />
-        <Inventory addFish={this.addFish} loadSamples={this.loadSamples}/>
+        <Inventory
+          fishes={this.state.fishes}
+          addFish={this.addFish}
+          updateFish={this.updateFish}
+          removeFish={this.removeFish}
+          loadSamples={this.loadSamples}/>
       </div>
     );
   }
